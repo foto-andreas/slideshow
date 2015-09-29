@@ -13,27 +13,9 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import javax.imageio.ImageIO;
 
-
 public class SlideShow {
 
-	public static class Slide {
-		private final Path current;
-		private Slide prev = null;
-		private Slide next = null;
-		public Slide(final Path current) {
-			this.current = current;
-		}
-		public Slide getNext() {
-			return next;
-		}
-		public Path getPath() {
-			return current;
-		}
-		public Slide getPrev() {
-			return prev;
-		}
-
-	}
+	private static final String THUMB_SUB_DIR_NAME = ".THUMB200";
 
 	private final String title;
 
@@ -57,10 +39,10 @@ public class SlideShow {
 	public void add(final Path path) {
 		final Slide s = new Slide(path);
 		if (slides.isEmpty()) {
-			s.prev = null;
+			s.setPrev(null);
 		} else {
-			s.prev = slides.getLast();
-			s.prev.next = s;
+			s.setPrev(slides.getLast());
+			s.getPrev().setNext(s);
 		}
 		slides.add(s);
 	}
@@ -72,12 +54,12 @@ public class SlideShow {
 	public Collection<Slide> getSlides() {
 		final List<Slide> list = new ArrayList<>(slides.size());
 		list.addAll(slides);
-		Collections.sort(list, (a, b) -> a.current.compareTo(b.current));
+		Collections.sort(list, (a, b) -> a.getCurrent().compareTo(b.getCurrent()));
 		return list;
 	}
 
 	public Path getThumbnailPath() {
-		return Paths.get(path.toString(), ".THUMB200");
+		return Paths.get(path.toString(), THUMB_SUB_DIR_NAME);
 	}
 
 	public String getTitle() {

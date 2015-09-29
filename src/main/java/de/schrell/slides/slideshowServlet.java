@@ -10,9 +10,9 @@ import com.vaadin.server.SessionInitListener;
 
 @SuppressWarnings("serial")
 @WebServlet("/*")
-public class slideshowServlet extends TouchKitServlet {
+public class SlideshowServlet extends TouchKitServlet {
 
-    private slideshowUIProvider uiProvider = new slideshowUIProvider();
+    private SlideshowUIProvider uiProvider = new SlideshowUIProvider();
 
     @Override
     protected void servletInitialized() throws ServletException {

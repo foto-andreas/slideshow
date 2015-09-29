@@ -13,7 +13,10 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.naming.Context;
@@ -32,21 +35,22 @@ import com.vaadin.addon.touchkit.ui.SwipeView;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Widgetset;
+import com.vaadin.event.MouseEvents;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.Page;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.AbstractComponent;
+import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
+import com.vaadin.ui.JavaScript;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-
-import de.schrell.slides.SlideShow.Slide;
 
 /**
  * The UI's "main" class
@@ -61,29 +65,48 @@ import de.schrell.slides.SlideShow.Slide;
 @OfflineModeEnabled
 // Make the server retain UI state whenever the browser reloads the app
 @PreserveOnRefresh
-public class slideshowTouchKitUI extends UI {
+public class SlideshowTouchKitUI extends UI {
 
-	private final static Logger LOGGER = LogManager.getLogger(slideshowFallbackUI.class);
+	private static class FireImage extends Image {
 
-	Properties properties = new Properties();
+		public FireImage(final String caption, final StreamResource resource) {
+			super(caption, resource);
+		}
+
+		public void click() {
+			super.fireEvent(new MouseEvents.ClickEvent(this, new MouseEventDetails()));
+		}
+	}
+
+	private final static Logger LOGGER = LogManager.getLogger(SlideshowFallbackUI.class);
+
+	private final Properties properties = new Properties();
+	private int windowWidth;
+
+	private int windowHeight;
+	FireImage startSample = null;
 
 	private SwipeView createSwipeImage(final NavigationManager manager, final Slide slide) {
-		LOGGER.debug("create SwipeView: " + slide.getPath().toString());
+		LOGGER.debug("create SwipeImage: " + slide.getPath().toString());
 		final Path path = slide.getPath();
-		BufferedImage original;
 		try {
-			original = ImageIO.read(path.toFile());
-			final BufferedImage scaled = Scalr.resize(original, 1000);
+			final BufferedImage original = ImageIO.read(path.toFile());
+			final double sw = (double)windowWidth / original.getWidth();
+			final double sh = (double)windowHeight / original.getHeight();
+			final double scale = sw < sh ? sw : sh;
+			LOGGER.debug("scale = " + scale);
+			final BufferedImage scaled = Scalr.resize(original,
+				(int)(scale * original.getWidth()), (int)(scale * original.getHeight()));
 			final MyImageSource imgInner = new MyImageSource(scaled);
 			original.flush();
 			final StreamResource.StreamSource imagesource = imgInner;
 			final StreamResource resource = new StreamResource(imagesource, path.getFileName().toString());
-			final Image imageInner = new Image(path.getFileName().toString(), resource);
+			final Image image = new Image(null, resource);
 			final SwipeView swipe = new SwipeView();
 			swipe.setSizeFull();
 			swipe.setData(slide);
 			swipe.addStyleName("image-back");
-			imageInner.addClickListener(event
+			image.addClickListener(event
 				-> {
 					if (event.isShiftKey()) {
 						manager.navigateBack();
@@ -96,7 +119,11 @@ public class slideshowTouchKitUI extends UI {
 						return;
 					}
 					try {
-						manager.navigateTo(createSwipeImage(manager, slide.getNext()));
+						if (manager.getNextComponent() != null) {
+							manager.navigateTo(manager.getNextComponent());
+						} else {
+							manager.navigateTo(createSwipeImage(manager, slide.getNext()));
+						}
 					} catch (final Exception e) {
 						popError(e);
 					}
@@ -105,9 +132,9 @@ public class slideshowTouchKitUI extends UI {
 			final VerticalLayout layout = new VerticalLayout();
 			layout.setSizeFull();
 
-			layout.addComponent(imageInner);
+			layout.addComponent(image);
 
-			layout.setComponentAlignment(imageInner,
+			layout.setComponentAlignment(image,
 				Alignment.MIDDLE_CENTER);
 
 			final NavigationView navView = new NavigationView(slide.getPath().getFileName().toString(), layout);
@@ -142,8 +169,45 @@ public class slideshowTouchKitUI extends UI {
 		}
 	}
 
+	private void createThumbnail(final ThreadPoolExecutor exer, final SlideShow show, final Path sampleImage) {
+		final SlideShow finalShow = show;
+		exer.execute(()
+			-> {
+				try {
+					final Path thumbNail = Paths.get(finalShow.getThumbnailPath().toString(), sampleImage.getFileName().toString());
+					if (!thumbNail.toFile().exists()) {
+						BufferedImage original = null;
+						if (sampleImage.toString().toLowerCase().endsWith(".mov")) {
+							// TODO make thumb from mov
+						} else {
+							original = ImageIO.read(sampleImage.toFile());
+						}
+						if (original != null) {
+							final BufferedImage scaled = Scalr.resize(original, 200);
+							original.flush();
+							ImageIO.write(scaled, "png", thumbNail.toFile());
+							scaled.flush();
+							LOGGER.debug("created " + thumbNail.toString() +
+								" [" + exer.getCompletedTaskCount() + "/" + exer.getQueue().size() + "]");
+						} else {
+							LOGGER.error("Fehler beim Erzeugen eines Thumbnails für " + thumbNail.toString());
+						}
+					}
+				} catch (final Exception e) {
+					LOGGER.error("Fehler beim Erzeugen eines Thumbnails.", e);
+				}
+			});
+	}
+
 	@Override
 	protected void init(final VaadinRequest request) {
+
+		final String start = request.getParameter("show");
+
+		LOGGER.info("Angefordertes Fotoalbum: " + start);
+
+		final ThreadPoolExecutor exer = new ThreadPoolExecutor(
+			10, 20, 60, TimeUnit.SECONDS, new ArrayBlockingQueue<>(1_000_000));
 
 		readProperties();
 
@@ -161,25 +225,7 @@ public class slideshowTouchKitUI extends UI {
 					continue;
 				}
 				LOGGER.debug("entering directory " + showDir.toString());
-				SlideShow show = null;
-				try (DirectoryStream<Path> imagesStream = Files.newDirectoryStream(showDir)) {
-					final Iterator<Path> imagesIterator = imagesStream.iterator();
-					while (imagesIterator.hasNext()) {
-						final Path sampleImage = imagesIterator.next();
-						if (sampleImage.toString().toLowerCase().endsWith("jpg")) {
-							LOGGER.debug("seeing image " + sampleImage.toString());
-							if (show == null) {
-								show = new SlideShow(showDir.getFileName().toString(), sampleImage);
-							}
-							show.add(sampleImage);
-						}
-					}
-					if (show != null) {
-						slideshows.add(show);
-					}
-				} catch (final IOException e) {
-					popError(e);
-				}
+				registerSlideShow(slideshows, showDir, exer);
 			}
 		} catch (final IOException e) {
 			popError(e);
@@ -187,35 +233,45 @@ public class slideshowTouchKitUI extends UI {
 
 		final NavigationManager manager = new NavigationManager();
 
-		manager.addNavigationListener(event
-			-> {
-				LOGGER.debug("addNavigationListener: " + event.getDirection());
-				if (manager.getCurrentComponent() instanceof SwipeView) {
-					switch(event.getDirection()) {
-					case FORWARD:
-						try {
-							manager.setNextComponent(createSwipeImage(manager, ((Slide) (((AbstractComponent) (manager.getCurrentComponent())).getData())).getNext()));
-						} catch (final Exception e) {
-							popError(e);
-						}
-						break;
-					case BACK:
-						break;
-					}
-				}
-			});
+		//		manager.addNavigationListener(event
+		//			-> {
+		//				LOGGER.debug("addNavigationListener: " + event.getDirection());
+		//				if (manager.getCurrentComponent() instanceof SwipeView) {
+		//					switch(event.getDirection()) {
+		//					case FORWARD:
+		//						try {
+		//							if (manager.getNextComponent() == null) {
+		//								manager.setNextComponent(createSwipeImage(manager, ((Slide) (((AbstractComponent) (manager.getCurrentComponent())).getData())).getNext()));
+		//							}
+		//						} catch (final Exception e) {
+		//							popError(e);
+		//						}
+		//						break;
+		//					case BACK:
+		//						break;
+		//					}
+		//				}
+		//			});
 
 		final CssLayout showsContent = new CssLayout();
 		showsContent.addStyleName("thumb-layout");
+
+		setWindowSize();
+
+		Page.getCurrent().addBrowserWindowResizeListener(event -> setWindowSize());
+
 		final CssLayout showContent = new CssLayout();
 		showContent.addStyleName("thumb-layout");
 
-		final NavigationView showsView = new NavigationView("Shows", showsContent);
-		final NavigationView showView = new NavigationView("Show", showContent);
+		final NavigationView showsView = new NavigationView("Fotoalben", showsContent);
+		final NavigationView showView = new NavigationView("Album", showContent);
 
 		slideshows.forEach(show
 			-> {
-				final Image sample = layoutImage(showsContent, show.getTitle(), show.getSampleImage());
+				final FireImage sample = layoutImage(showsContent, show.getTitle(), show.getSampleImage());
+				if (show.getTitle().equals(start)) {
+					startSample = sample;
+				}
 				sample.addClickListener(event
 					-> {
 						showContent.removeAllComponents();
@@ -228,13 +284,9 @@ public class slideshowTouchKitUI extends UI {
 									final BufferedImage scaled;
 									if (thumbNail.toFile().exists()) {
 										scaled = ImageIO.read(thumbNail.toFile());
-										LOGGER.debug("using " + thumbNail.toString());
+										LOGGER.trace("using " + thumbNail.toString());
 									} else {
-										final BufferedImage original = ImageIO.read(path.toFile());
-										scaled = Scalr.resize(original, 200);
-										original.flush();
-										ImageIO.write(scaled, "png", thumbNail.toFile());
-										LOGGER.debug("created " + thumbNail.toString());
+										scaled = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
 									}
 									final MyImageSource img = new MyImageSource(scaled);
 									final Image image = layoutImage(showContent, path.getFileName().toString(), img);
@@ -254,12 +306,20 @@ public class slideshowTouchKitUI extends UI {
 
 		setContent(manager);
 
+		getUI().access(()
+			-> {
+				if (startSample != null) {
+					LOGGER.info("Starte Fotoalbum " + startSample.getCaption());
+					startSample.click();
+				}
+			});
+
 	}
 
-	private Image layoutImage(final CssLayout showsContent, final String title, final MyImageSource source) {
+	private FireImage layoutImage(final CssLayout showsContent, final String title, final MyImageSource source) {
 		final StreamResource.StreamSource imagesource = source;
 		final StreamResource resource = new StreamResource(imagesource, title);
-		final Image image = new Image(title.replaceAll(".*_", ""), resource);
+		final FireImage image = new FireImage(title.replaceAll(".*_", ""), resource);
 		image.addStyleName("thumb-caption");
 		final HorizontalLayout box = new HorizontalLayout();
 		box.setStyleName("thumb-box");
@@ -318,9 +378,9 @@ public class slideshowTouchKitUI extends UI {
 					LOGGER.info("loaded properties from properties file: " + propertiesFile);
 				}
 			} catch(final NamingException e) {
-				LOGGER.info("Properties im Kontext nicht verfügbar.", e);
+				LOGGER.info("Properties im Kontext nicht verfügbar."); // e schlabbern
 				// Properties aus dem Classpath holen
-				try (InputStream stream = slideshowFallbackUI.class.getClassLoader().getResourceAsStream("slideshow.properties")) {
+				try (InputStream stream = SlideshowFallbackUI.class.getClassLoader().getResourceAsStream("slideshow.properties")) {
 					properties.load(stream);
 					LOGGER.info("loaded properties from classpath");
 				}
@@ -336,9 +396,52 @@ public class slideshowTouchKitUI extends UI {
 		}
 	}
 
+	private SlideShow registerSlideShow(final Collection<SlideShow> slideshows, final Path showDir,
+		final ThreadPoolExecutor exer) {
+		SlideShow show = null;
+		try (DirectoryStream<Path> imagesStream = Files.newDirectoryStream(showDir)) {
+			final Iterator<Path> imagesIterator = imagesStream.iterator();
+			while (imagesIterator.hasNext()) {
+				final Path sampleImage = imagesIterator.next();
+				final String name = sampleImage.toString().toLowerCase();
+				if (name.endsWith("jpg")/* || name.endsWith("mov")*/ ) {
+					LOGGER.trace("seeing image " + sampleImage.toString());
+					if (show == null) {
+						show = new SlideShow(showDir.getFileName().toString(), sampleImage);
+					} else {
+						createThumbnail(exer, show, sampleImage);
+					}
+					show.add(sampleImage);
+				}
+			}
+			if (show != null) {
+				slideshows.add(show);
+			}
+		} catch (final IOException e) {
+			popError(e);
+		}
+		return show;
+	}
+
+	private void setWindowSize() {
+
+		JavaScript.getCurrent().addFunction("de.schrell.sizeCallback",
+			arguments -> {
+				windowWidth = arguments.getInt(0) - 40;
+				windowHeight =  arguments.getInt(1) - 100;
+				LOGGER.debug("Window size = " + windowWidth + "x" + windowHeight);
+			});
+
+		JavaScript.getCurrent().execute(
+			"de.schrell.sizeCallback(window.innerWidth, window.innerHeight);"
+			);
+
+	}
+
 	private void swipeToImage(final NavigationManager manager, final Slide slide) {
 		final SwipeView pop = createSwipeImage(manager, slide);
 		final Slide next = slide.getNext();
+
 		manager.navigateTo(pop);
 
 		if (next != null) {

@@ -6,7 +6,7 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
 
 @SuppressWarnings("serial")
-public class slideshowUIProvider extends UIProvider {
+public class SlideshowUIProvider extends UIProvider {
 
 	@Override
 	public Class<? extends UI> getUIClass(final UIClassSelectionEvent event) {
@@ -16,10 +16,10 @@ public class slideshowUIProvider extends UIProvider {
 		final boolean mobileParameter = event.getRequest().getParameter("mobile") != null;
 
 		if (overrideMobileUA() || mobileUserAgent || mobileParameter) {
-			return slideshowTouchKitUI.class;
+			return SlideshowTouchKitUI.class;
 		} else {
 			//TODO            return slideshowFallbackUI.class;
-			return slideshowTouchKitUI.class;
+			return SlideshowTouchKitUI.class;
 		}
 	}
 

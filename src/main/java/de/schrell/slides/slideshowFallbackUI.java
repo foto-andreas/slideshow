@@ -16,7 +16,7 @@ import com.vaadin.ui.UI;
 @CacheManifestEnabled(false)
 // Prevent showing OfflineMode client UI if network fails
 @OfflineModeEnabled(false)
-public class slideshowFallbackUI extends UI {
+public class SlideshowFallbackUI extends UI {
 
     @Override
     protected void init(VaadinRequest request) {

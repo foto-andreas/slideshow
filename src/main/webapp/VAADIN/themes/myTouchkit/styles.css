@@ -8,11 +8,11 @@
 
 .thumb-box {
 	background-color: #444444;
-	margin: 10px;
-	max-width: 260px !important;
-	max-height: 260px !important;
-	width: 260px !important;
-	height: 260px !important;
+	margin: 5px;
+	max-width: 240px !important;
+	max-height: 240px !important;
+	width: 240px !important;
+	height: 240px !important;
 	text-align: center;
 }
 
@@ -47,4 +47,8 @@
 .v-touchkit-navview-wrapper {
 	background-color: #222222;
 	color: #BBBBBB
+}
+.v-textfield {
+	background-color: #666666;
+	color: #BBBBBB;
 }
