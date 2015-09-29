@@ -5,11 +5,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
@@ -21,7 +19,7 @@ public class SlideShow {
 
 	private final MyImageSource sampleImage;
 
-	private final ConcurrentLinkedDeque<Slide> slides = new ConcurrentLinkedDeque<>();
+	private final TreeMap<Path, Slide> slides = new TreeMap<>();
 
 	private final Path path;
 
@@ -32,30 +30,28 @@ public class SlideShow {
 		this.sampleImage = new MyImageSource(scaled);
 		path = sampleImage.getParent();
 		if (!getThumbnailPath().toFile().exists()) {
-			Files.createDirectory(getThumbnailPath());
+			Files.createDirectory(getThumbnailPath(),
+				PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwxrwx")));
 		}
 	}
 
-	public void add(final Path path) {
+	public synchronized void add(final Path path) {
 		final Slide s = new Slide(path);
 		if (slides.isEmpty()) {
 			s.setPrev(null);
 		} else {
-			s.setPrev(slides.getLast());
+			s.setPrev(slides.get(slides.lastKey()));
 			s.getPrev().setNext(s);
 		}
-		slides.add(s);
+		slides.put(s.getCurrent(), s);
 	}
 
 	public MyImageSource getSampleImage() {
 		return sampleImage;
 	}
 
-	public Collection<Slide> getSlides() {
-		final List<Slide> list = new ArrayList<>(slides.size());
-		list.addAll(slides);
-		Collections.sort(list, (a, b) -> a.getCurrent().compareTo(b.getCurrent()));
-		return list;
+	public synchronized Collection<Slide> getSlides() {
+		return slides.values();
 	}
 
 	public Path getThumbnailPath() {

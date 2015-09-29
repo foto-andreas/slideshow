@@ -100,7 +100,7 @@ public class SlideshowTouchKitUI extends UI {
 							final BufferedImage scaled;
 							if (thumbNail.toFile().exists()) {
 								scaled = ImageIO.read(thumbNail.toFile());
-								LOGGER.trace("using " + thumbNail.toString());
+								LOGGER.trace("Mini-Ansicht " + thumbNail.toString() + " wird benutzt.");
 							} else {
 								scaled = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
 							}
@@ -120,14 +120,14 @@ public class SlideshowTouchKitUI extends UI {
 	}
 
 	private SwipeView createSwipeImage(final NavigationManager manager, final Slide slide) {
-		LOGGER.debug("create SwipeImage: " + slide.getPath().toString());
+		LOGGER.debug("Erzeuge Detailbild-Ansicht: " + slide.getPath().toString());
 		final Path path = slide.getPath();
 		try {
 			final BufferedImage original = ImageIO.read(path.toFile());
 			final double sw = (double)windowWidth / original.getWidth();
 			final double sh = (double)windowHeight / original.getHeight();
 			final double scale = sw < sh ? sw : sh;
-			LOGGER.debug("scale = " + scale);
+			LOGGER.trace("scale = " + scale);
 			final BufferedImage scaled = Scalr.resize(original,
 				(int)(scale * original.getWidth()), (int)(scale * original.getHeight()));
 			final MyImageSource imgInner = new MyImageSource(scaled);
@@ -198,7 +198,7 @@ public class SlideshowTouchKitUI extends UI {
 			return swipe;
 		} catch (final IOException e) {
 			popError(e);
-			return new SwipeView("ERROR");
+			return new SwipeView("Fehler - Siehe Logbuch.");
 		}
 	}
 
@@ -220,7 +220,7 @@ public class SlideshowTouchKitUI extends UI {
 							original.flush();
 							ImageIO.write(scaled, "png", thumbNail.toFile());
 							scaled.flush();
-							LOGGER.debug("created " + thumbNail.toString() +
+							LOGGER.debug("Mini-Ansicht generiert: " + thumbNail.toString() +
 								" [" + exer.getCompletedTaskCount() + "/" + exer.getQueue().size() + "]");
 						} else {
 							LOGGER.error("Fehler beim Erzeugen eines Thumbnails für " + thumbNail.toString());
@@ -248,7 +248,7 @@ public class SlideshowTouchKitUI extends UI {
 
 		final Collection<SlideShow> slideshows = new ConcurrentLinkedQueue<>();
 
-		LOGGER.debug("reading from base directory " + folder);
+		LOGGER.debug("Lese das Basisverzeichnis " + folder);
 
 		try (DirectoryStream<Path> showsStream = Files.newDirectoryStream(Paths.get(folder))) {
 			final Iterator<Path> showsIter = showsStream.iterator();
@@ -257,7 +257,7 @@ public class SlideshowTouchKitUI extends UI {
 				if (!showDir.toFile().isDirectory()) {
 					continue;
 				}
-				LOGGER.debug("entering directory " + showDir.toString());
+				LOGGER.debug("Lese Verzeichnis " + showDir.toString());
 				registerSlideShow(slideshows, showDir, exer);
 			}
 		} catch (final IOException e) {
@@ -339,7 +339,7 @@ public class SlideshowTouchKitUI extends UI {
 					final Popover pop = new Popover(navi);
 					pop.setSizeFull();
 					pop.setModal(true);
-					final Button ok = new Button("ok");
+					final Button ok = new Button("Ok");
 					ok.addClickListener(event -> pop.close());
 					navi.setToolbar(ok);
 					getUI().addWindow(pop);
@@ -360,14 +360,14 @@ public class SlideshowTouchKitUI extends UI {
 				final String propertiesFile = (String) envCtx.lookup("properties");
 				try (FileInputStream stream = new FileInputStream(propertiesFile)) {
 					properties.load(stream);
-					LOGGER.info("loaded properties from properties file: " + propertiesFile);
+					LOGGER.info("Properties aus der Datei " + propertiesFile + " geladen.");
 				}
 			} catch(final NamingException e) {
-				LOGGER.info("Properties im Kontext nicht verfügbar."); // e schlabbern
+				LOGGER.info("Properties sind im Kontext nicht verfügbar."); // e schlabbern
 				// Properties aus dem Classpath holen
 				try (InputStream stream = SlideshowFallbackUI.class.getClassLoader().getResourceAsStream("slideshow.properties")) {
 					properties.load(stream);
-					LOGGER.info("loaded properties from classpath");
+					LOGGER.info("Properties vom Classpath geladen");
 				}
 			}
 			// Properties im Log anlisten
@@ -390,7 +390,7 @@ public class SlideshowTouchKitUI extends UI {
 				final Path sampleImage = imagesIterator.next();
 				final String name = sampleImage.toString().toLowerCase();
 				if (name.endsWith("jpg")/* || name.endsWith("mov")*/ ) {
-					LOGGER.trace("seeing image " + sampleImage.toString());
+					LOGGER.trace("Bild gefunden " + sampleImage.toString());
 					if (show == null) {
 						show = new SlideShow(showDir.getFileName().toString(), sampleImage);
 					} else {
@@ -414,7 +414,7 @@ public class SlideshowTouchKitUI extends UI {
 			arguments -> {
 				windowWidth = arguments.getInt(0) - 40;
 				windowHeight =  arguments.getInt(1) - 100;
-				LOGGER.debug("Window size = " + windowWidth + "x" + windowHeight);
+				LOGGER.debug("Browser-Fenstergröße (innen) = " + windowWidth + "x" + windowHeight);
 			});
 
 		JavaScript.getCurrent().execute(
@@ -431,7 +431,7 @@ public class SlideshowTouchKitUI extends UI {
 
 		if (next != null) {
 			manager.setNextComponent(createSwipeImage(manager, next));
-			LOGGER.debug("NEXT: " + next.getPath().toString());
+			LOGGER.trace("NEXT: " + next.getPath().toString());
 		}
 	}
 }
