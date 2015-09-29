@@ -235,7 +235,6 @@ public class SlideshowTouchKitUI extends UI {
 	@Override
 	protected void init(final VaadinRequest request) {
 
-		popError(new Throwable("TEST"));
 		final String start = request.getParameter("show");
 
 		LOGGER.info("Angefordertes Fotoalbum: " + start);
@@ -292,13 +291,13 @@ public class SlideshowTouchKitUI extends UI {
 
 		setContent(manager);
 
-		//		getUI().access(()
-		//			-> {
-		if (startSample != null) {
-			LOGGER.info("Starte Fotoalbum " + startSample.getCaption());
-			startSample.click();
-		}
-		//			});
+		getUI().access(()
+			-> {
+				if (startSample != null) {
+					LOGGER.info("Starte Fotoalbum " + startSample.getCaption());
+					startSample.click();
+				}
+			});
 
 	}
 

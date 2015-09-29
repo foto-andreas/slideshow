@@ -1,7 +1,0 @@
-@import "addons.scss";
-@import "myTouchkit.scss";
-
-.mytheme {
-  @include addons;
-  @include myTouchkit;
-}
