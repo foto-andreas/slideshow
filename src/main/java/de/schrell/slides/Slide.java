@@ -5,11 +5,11 @@ import java.nio.file.Path;
 public class Slide {
 
 	private final Path current;
-	private Slide prev = null;
-	private Slide next = null;
+	private final SlideShow show;
 
-	public Slide(final Path current) {
+	public Slide(final Path current, final SlideShow show) {
 		this.current = current;
+		this.show = show;
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class Slide {
 	}
 
 	public Slide getNext() {
-		return next;
+		return show.slideAfter(this);
 	}
 
 	public Path getPath() {
@@ -37,7 +37,7 @@ public class Slide {
 	}
 
 	public Slide getPrev() {
-		return prev;
+		return show.slideBefore(this);
 	}
 
 	@Override
@@ -45,11 +45,4 @@ public class Slide {
 		return getCurrent().hashCode();
 	}
 
-	public void setNext(final Slide next) {
-		this.next = next;
-	}
-
-	public void setPrev(final Slide prev) {
-		this.prev = prev;
-	}
 }

@@ -41,6 +41,7 @@ import com.vaadin.server.Page;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.MouseEventDetails;
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
@@ -155,7 +156,10 @@ public class SlideshowTouchKitUI extends UI {
 						if (manager.getNextComponent() != null) {
 							manager.navigateTo(manager.getNextComponent());
 						} else {
-							manager.navigateTo(createSwipeImage(manager, slide.getNext()));
+							final Slide nextSlide = slide.getNext();
+							if (nextSlide != null) {
+								manager.navigateTo(createSwipeImage(manager, nextSlide));
+							}
 						}
 					} catch (final Exception e) {
 						popError(e);
@@ -176,7 +180,12 @@ public class SlideshowTouchKitUI extends UI {
 
 
 			final Button forward = new Button(FontAwesome.FORWARD);
-			forward.addClickListener(event -> manager.navigateTo(createSwipeImage(manager, slide.getNext())));
+			forward.addClickListener(event -> {
+				final Slide nextSlide = slide.getNext();
+				if (nextSlide != null) {
+					manager.navigateTo(createSwipeImage(manager, nextSlide));
+				}
+			});
 
 			final Button backward = new Button(FontAwesome.BACKWARD);
 			backward.addClickListener(event -> manager.navigateBack());
@@ -265,6 +274,25 @@ public class SlideshowTouchKitUI extends UI {
 		}
 
 		final NavigationManager manager = new NavigationManager();
+
+		manager.addNavigationListener(event
+			-> {
+				LOGGER.debug("onNavigation: " + event.getDirection());
+				if (manager.getCurrentComponent() instanceof SwipeView) {
+					switch(event.getDirection()) {
+					case FORWARD:
+						if (manager.getNextComponent() == null) {
+							final Slide nextSlide = ((Slide) (((AbstractComponent) (manager.getCurrentComponent())).getData())).getNext();
+							if (nextSlide != null) {
+								manager.setNextComponent(createSwipeImage(manager, nextSlide));
+							}
+						}
+						break;
+					case BACK:
+						break;
+					}
+				}
+			});
 
 		final CssLayout showsContent = new CssLayout();
 		showsContent.addStyleName("thumb-layout");

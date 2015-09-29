@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Collection;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
@@ -36,13 +37,7 @@ public class SlideShow {
 	}
 
 	public synchronized void add(final Path path) {
-		final Slide s = new Slide(path);
-		if (slides.isEmpty()) {
-			s.setPrev(null);
-		} else {
-			s.setPrev(slides.get(slides.lastKey()));
-			s.getPrev().setNext(s);
-		}
+		final Slide s = new Slide(path, this);
 		slides.put(s.getCurrent(), s);
 	}
 
@@ -60,6 +55,16 @@ public class SlideShow {
 
 	public String getTitle() {
 		return title;
+	}
+
+	public Slide slideAfter(final Slide slide) {
+		final Entry<Path, Slide> higherEntry = slides.higherEntry(slide.getCurrent());
+		return higherEntry == null ? null : higherEntry.getValue();
+	}
+
+	public Slide slideBefore(final Slide slide) {
+		final Entry<Path, Slide> lowerEntry = slides.lowerEntry(slide.getCurrent());
+		return lowerEntry == null ? null : lowerEntry.getValue();
 	}
 
 }

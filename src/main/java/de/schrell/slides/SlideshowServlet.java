@@ -4,25 +4,23 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 
 import com.vaadin.addon.touchkit.server.TouchKitServlet;
-import com.vaadin.server.ServiceException;
-import com.vaadin.server.SessionInitEvent;
-import com.vaadin.server.SessionInitListener;
+import com.vaadin.addon.touchkit.settings.TouchKitSettings;
+import com.vaadin.addon.touchkit.settings.WebAppSettings;
 
 @SuppressWarnings("serial")
 @WebServlet("/*")
 public class SlideshowServlet extends TouchKitServlet {
 
-    private SlideshowUIProvider uiProvider = new SlideshowUIProvider();
+	private final SlideshowUIProvider uiProvider = new SlideshowUIProvider();
 
-    @Override
-    protected void servletInitialized() throws ServletException {
-        super.servletInitialized();
-        getService().addSessionInitListener(new SessionInitListener() {
-            @Override
-            public void sessionInit(SessionInitEvent event) throws ServiceException {
-                event.getSession().addUIProvider(uiProvider);
-            }
-        });
-    }
+	@Override
+	protected void servletInitialized() throws ServletException {
+		super.servletInitialized();
+		final TouchKitSettings tksets = getTouchKitSettings();
+		final WebAppSettings webAppSettings = tksets.getWebAppSettings();
+		webAppSettings.setWebAppCapable(true);
+		webAppSettings.setStatusBarStyle("black-translucent");
+		getService().addSessionInitListener(event -> event.getSession().addUIProvider(uiProvider));
+	}
 
 }
