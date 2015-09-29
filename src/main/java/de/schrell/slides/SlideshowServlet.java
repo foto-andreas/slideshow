@@ -18,8 +18,8 @@ public class SlideshowServlet extends TouchKitServlet {
 		super.servletInitialized();
 		final TouchKitSettings tksets = getTouchKitSettings();
 		final WebAppSettings webAppSettings = tksets.getWebAppSettings();
-		webAppSettings.setWebAppCapable(true);
-		webAppSettings.setStatusBarStyle("black-translucent");
+		//		webAppSettings.setWebAppCapable(true);
+		//		webAppSettings.setStatusBarStyle("black-translucent");
 		getService().addSessionInitListener(event -> event.getSession().addUIProvider(uiProvider));
 	}
 
