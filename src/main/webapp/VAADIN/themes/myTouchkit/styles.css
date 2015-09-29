@@ -52,3 +52,22 @@
 	background-color: #666666;
 	color: #BBBBBB;
 }
+
+textarea.v-textarea-readonly {
+	color: white;
+}
+
+.v-touchkit-navview-toolbar {
+	background-color: #000000;
+	color: white;
+}
+
+.v-button-wrap {
+    background-color: #333333;
+}
+
+.v-button {
+	border-radius: 0px;
+	background-color: #000000;
+	border-color: #000000;
+}
