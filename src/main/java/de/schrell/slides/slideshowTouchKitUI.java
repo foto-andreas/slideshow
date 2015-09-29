@@ -86,6 +86,39 @@ public class SlideshowTouchKitUI extends UI {
 	private int windowHeight;
 	FireImage startSample = null;
 
+	private void addClickListenerForSampleImage(final FireImage sample, final SlideShow show,
+		final NavigationManager manager, final NavigationView showView, final CssLayout showContent) {
+		sample.addClickListener(event
+			-> {
+				showContent.removeAllComponents();
+				showView.setCaption(show.getTitle());
+				show.getSlides().forEach(slide
+					-> {
+						final Path path = slide.getPath();
+						final Path thumbNail = Paths.get(show.getThumbnailPath().toString(), path.getFileName().toString());
+						try {
+							final BufferedImage scaled;
+							if (thumbNail.toFile().exists()) {
+								scaled = ImageIO.read(thumbNail.toFile());
+								LOGGER.trace("using " + thumbNail.toString());
+							} else {
+								scaled = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+							}
+							final MyImageSource img = new MyImageSource(scaled);
+							final Image image = layoutImage(showContent, path.getFileName().toString(), img);
+							image.addClickListener(click
+								-> {
+									swipeToImage(manager, slide);
+								});
+
+						} catch (final Exception e) {
+							popError(e);
+						}
+					});
+				manager.navigateTo(showView);
+			});
+	}
+
 	private SwipeView createSwipeImage(final NavigationManager manager, final Slide slide) {
 		LOGGER.debug("create SwipeImage: " + slide.getPath().toString());
 		final Path path = slide.getPath();
@@ -233,26 +266,6 @@ public class SlideshowTouchKitUI extends UI {
 
 		final NavigationManager manager = new NavigationManager();
 
-		//		manager.addNavigationListener(event
-		//			-> {
-		//				LOGGER.debug("addNavigationListener: " + event.getDirection());
-		//				if (manager.getCurrentComponent() instanceof SwipeView) {
-		//					switch(event.getDirection()) {
-		//					case FORWARD:
-		//						try {
-		//							if (manager.getNextComponent() == null) {
-		//								manager.setNextComponent(createSwipeImage(manager, ((Slide) (((AbstractComponent) (manager.getCurrentComponent())).getData())).getNext()));
-		//							}
-		//						} catch (final Exception e) {
-		//							popError(e);
-		//						}
-		//						break;
-		//					case BACK:
-		//						break;
-		//					}
-		//				}
-		//			});
-
 		final CssLayout showsContent = new CssLayout();
 		showsContent.addStyleName("thumb-layout");
 
@@ -272,47 +285,19 @@ public class SlideshowTouchKitUI extends UI {
 				if (show.getTitle().equals(start)) {
 					startSample = sample;
 				}
-				sample.addClickListener(event
-					-> {
-						showContent.removeAllComponents();
-						showView.setCaption(show.getTitle());
-						show.getSlides().forEach(slide
-							-> {
-								final Path path = slide.getPath();
-								final Path thumbNail = Paths.get(show.getThumbnailPath().toString(), path.getFileName().toString());
-								try {
-									final BufferedImage scaled;
-									if (thumbNail.toFile().exists()) {
-										scaled = ImageIO.read(thumbNail.toFile());
-										LOGGER.trace("using " + thumbNail.toString());
-									} else {
-										scaled = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
-									}
-									final MyImageSource img = new MyImageSource(scaled);
-									final Image image = layoutImage(showContent, path.getFileName().toString(), img);
-									image.addClickListener(click
-										-> {
-											swipeToImage(manager, slide);
-										});
-
-								} catch (final Exception e) {
-									popError(e);
-								}
-							});
-						manager.navigateTo(showView);
-					});
+				addClickListenerForSampleImage(sample, show, manager, showView, showContent);
 			});
 		manager.navigateTo(showsView);
 
 		setContent(manager);
 
-		getUI().access(()
-			-> {
-				if (startSample != null) {
-					LOGGER.info("Starte Fotoalbum " + startSample.getCaption());
-					startSample.click();
-				}
-			});
+		//		getUI().access(()
+		//			-> {
+		if (startSample != null) {
+			LOGGER.info("Starte Fotoalbum " + startSample.getCaption());
+			startSample.click();
+		}
+		//			});
 
 	}
 
