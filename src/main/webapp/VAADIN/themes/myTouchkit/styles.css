@@ -1,0 +1,50 @@
+.body {
+	background-color: black;
+}
+
+.v-slot-thumb-caption {
+	text-align: center;
+}
+
+.thumb-box {
+	background-color: #444444;
+	margin: 10px;
+	max-width: 260px !important;
+	max-height: 260px !important;
+	width: 260px !important;
+	height: 260px !important;
+	text-align: center;
+}
+
+.thumb-layout {
+	background-color: #222222;
+	margin: 10px;
+	text-align: center;
+	width: 100%;
+	height: 100%;
+}
+
+.v-captiontext {
+	margin-bottom: 5px;
+	margin-right:5px;
+	margin-left: 5px;
+	color: #BBBBBB;
+	text-align: center;
+	white-space: normal;
+	word-wrap: normal;
+}
+
+.v-slot {
+	background-color: #444444;
+	color: #BBBBBB
+}
+
+.v-touchkit-navbar-caption {
+	background-color: #444444;
+	color: #BBBBBB
+}
+
+.v-touchkit-navview-wrapper {
+	background-color: #222222;
+	color: #BBBBBB
+}
