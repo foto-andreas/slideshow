@@ -136,6 +136,7 @@ public class SlideshowTouchKitUI extends UI {
 			final StreamResource.StreamSource imagesource = imgInner;
 			final StreamResource resource = new StreamResource(imagesource, path.getFileName().toString());
 			final Image image = new Image(null, resource);
+			image.addStyleName("thumb-image");
 			final SwipeView swipe = new SwipeView();
 			swipe.setSizeFull();
 			swipe.setData(slide);

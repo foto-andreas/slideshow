@@ -5,7 +5,7 @@
     <groupId>de.schrell.slides</groupId>
     <artifactId>slideshow</artifactId>
     <packaging>war</packaging>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <name>slideshow - Vaadin TouchKit Web Application</name>
 
     <properties>
@@ -109,11 +109,19 @@
 					<groupId>org.apache.tomcat.maven</groupId>
 					<artifactId>tomcat7-maven-plugin</artifactId>
 					<version>2.2</version>
-					<configuration>
+<!-- 
+ 					<configuration>
 						<url>http://schrell.de:8080/manager/text</url>
 						<server>schrell.de</server>
 						<path>/slideshow</path>
 					</configuration>
+ -->
+					<configuration>
+						<url>http://localhost:8080/manager/text</url>
+						<server>localhost</server>
+						<path>/slideshow</path>
+					</configuration>
+					
 				</plugin>
 	            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -142,7 +150,6 @@
                     </webappDirectory>
                     <hostedWebapp>${basedir}/src/main/webapp/VAADIN/widgetsets
                     </hostedWebapp>
-                    <extraJvmArgs>-Xmx1g -Xss4024k</extraJvmArgs>
                     <noServer>true</noServer>
                     <!-- Remove draftCompile when project is ready -->
                     <draftCompile>false</draftCompile>
@@ -151,7 +158,7 @@
                     <persistentunitcachedir>${project.build.directory}</persistentunitcachedir>
                     <deploy>${project.build.directory}/gwt-deploy</deploy>
                     <runTarget>http://localhost:8080/</runTarget>
-                    <extraJvmArgs>-Xmx1024M -Xss4024k -XX:MaxPermSize=128m</extraJvmArgs>
+                    <extraJvmArgs>-Xmx2048M -Xss4024k</extraJvmArgs>
                     <modules>
                       <module>de.schrell.slides.gwt.slideshowWidgetSet</module>
                     </modules>

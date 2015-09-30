@@ -16,7 +16,7 @@
 		max-height: 240px !important;
 		width: 240px !important;
 		height: 240px !important;
-		text-align: center;
+		text-align: center !important;
 	}
 	
 	.thumb-layout {
@@ -27,12 +27,15 @@
 		height: 100%;
 	}
 	
+	.v-caption-on-top>.v-caption, .v-caption-on-bottom>.v-caption {
+	    text-align: center;
+	}
+	
 	.v-captiontext {
 		margin-bottom: 5px;
-		margin-right:5px;
-		margin-left: 5px;
+		margin-top: -5px;
 		color: #BBBBBB;
-		text-align: center;
+		text-align: center !important;
 		white-space: normal;
 		word-wrap: normal;
 	}
@@ -45,11 +48,6 @@
 	.v-touchkit-navbar-caption {
 		background-color: #444444;
 		color: #BBBBBB;
-	}
-	
-	.v-touchkit-navbar-caption[width-range~="0-393px"] {
-		background-color: #444444;
-		color: red;
 	}
 	
 	.v-touchkit-navview-wrapper {
