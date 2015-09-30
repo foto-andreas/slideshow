@@ -1,0 +1,84 @@
+
+.myTouchkit {
+
+   	.body {
+		background-color: black;
+	}
+
+	.v-slot-thumb-caption {
+		text-align: center;
+	}
+
+	.thumb-box {
+		background-color: #444444;
+		margin: 3px;
+		max-width: 240px !important;
+		max-height: 240px !important;
+		width: 240px !important;
+		height: 240px !important;
+		text-align: center;
+	}
+	
+	.thumb-layout {
+		background-color: #222222;
+		margin: 0px;
+		text-align: center;
+		width: 100%;
+		height: 100%;
+	}
+	
+	.v-captiontext {
+		margin-bottom: 5px;
+		margin-right:5px;
+		margin-left: 5px;
+		color: #BBBBBB;
+		text-align: center;
+		white-space: normal;
+		word-wrap: normal;
+	}
+	
+	.v-slot {
+		background-color: #444444;
+		color: #BBBBBB;
+	}
+	
+	.v-touchkit-navbar-caption {
+		background-color: #444444;
+		color: #BBBBBB;
+	}
+	
+	.v-touchkit-navbar-caption[width-range~="0-393px"] {
+		background-color: #444444;
+		color: red;
+	}
+	
+	.v-touchkit-navview-wrapper {
+		background-color: #222222;
+		color: #BBBBBB;
+	}
+	
+	.v-textfield {
+		background-color: #666666;
+		color: #BBBBBB;
+	}
+	
+	textarea.v-textarea-readonly {
+		color: white;
+	}
+	
+	.v-touchkit-navview-toolbar {
+		background-color: #000000;
+		color: white;
+	}
+	
+	.v-button-wrap {
+	    background-color: #333333;
+	}
+	
+	.v-button {
+		border-radius: 0px;
+		background-color: #000000;
+		border-color: #000000;
+	}
+	
+}

@@ -16,10 +16,13 @@ public class SlideshowServlet extends TouchKitServlet {
 	@Override
 	protected void servletInitialized() throws ServletException {
 		super.servletInitialized();
+
 		final TouchKitSettings tksets = getTouchKitSettings();
+
 		final WebAppSettings webAppSettings = tksets.getWebAppSettings();
-		//		webAppSettings.setWebAppCapable(true);
-		//		webAppSettings.setStatusBarStyle("black-translucent");
+		webAppSettings.setWebAppCapable(true);
+		webAppSettings.setStatusBarStyle("black");
+
 		getService().addSessionInitListener(event -> event.getSession().addUIProvider(uiProvider));
 	}
 

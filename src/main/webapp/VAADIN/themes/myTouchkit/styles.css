@@ -1,12 +1,12 @@
-.body {
+.myTouchkit .body {
 	background-color: black;
 }
 
-.v-slot-thumb-caption {
+.myTouchkit .v-slot-thumb-caption {
 	text-align: center;
 }
 
-.thumb-box {
+.myTouchkit .thumb-box {
 	background-color: #444444;
 	margin: 3px;
 	max-width: 240px !important;
@@ -16,7 +16,7 @@
 	text-align: center;
 }
 
-.thumb-layout {
+.myTouchkit .thumb-layout {
 	background-color: #222222;
 	margin: 10px;
 	text-align: center;
@@ -24,9 +24,9 @@
 	height: 100%;
 }
 
-.v-captiontext {
+.myTouchkit .v-captiontext {
 	margin-bottom: 5px;
-	margin-right:5px;
+	margin-right: 5px;
 	margin-left: 5px;
 	color: #BBBBBB;
 	text-align: center;
@@ -34,39 +34,40 @@
 	word-wrap: normal;
 }
 
-.v-slot {
+.myTouchkit .v-slot {
 	background-color: #444444;
-	color: #BBBBBB
+	color: #BBBBBB;
 }
 
-.v-touchkit-navbar-caption {
+.myTouchkit .v-touchkit-navbar-caption {
 	background-color: #444444;
-	color: #BBBBBB
+	color: #BBBBBB;
 }
 
-.v-touchkit-navview-wrapper {
+.myTouchkit .v-touchkit-navview-wrapper {
 	background-color: #222222;
-	color: #BBBBBB
+	color: #BBBBBB;
 }
-.v-textfield {
+
+.myTouchkit .v-textfield {
 	background-color: #666666;
 	color: #BBBBBB;
 }
 
-textarea.v-textarea-readonly {
+.myTouchkit textarea.v-textarea-readonly {
 	color: white;
 }
 
-.v-touchkit-navview-toolbar {
+.myTouchkit .v-touchkit-navview-toolbar {
 	background-color: #000000;
 	color: white;
 }
 
-.v-button-wrap {
-    background-color: #333333;
+.myTouchkit .v-button-wrap {
+	background-color: #333333;
 }
 
-.v-button {
+.myTouchkit .v-button {
 	border-radius: 0px;
 	background-color: #000000;
 	border-color: #000000;

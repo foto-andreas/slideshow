@@ -127,7 +127,7 @@ public class SlideshowTouchKitUI extends UI {
 			final BufferedImage original = ImageIO.read(path.toFile());
 			final double sw = (double)windowWidth / original.getWidth();
 			final double sh = (double)windowHeight / original.getHeight();
-			final double scale = sw < sh ? sw : sh;
+			final double scale = Math.min(1.0, sw < sh ? sw : sh);
 			LOGGER.trace("scale = " + scale);
 			final BufferedImage scaled = Scalr.resize(original,
 				(int)(scale * original.getWidth()), (int)(scale * original.getHeight()));
@@ -440,8 +440,8 @@ public class SlideshowTouchKitUI extends UI {
 
 		JavaScript.getCurrent().addFunction("de.schrell.sizeCallback",
 			arguments -> {
-				windowWidth = arguments.getInt(0) - 40;
-				windowHeight =  arguments.getInt(1) - 100;
+				windowWidth = (int)arguments.getNumber(0) - 40;
+				windowHeight =  (int)arguments.getNumber(1) - 100;
 				LOGGER.debug("Browser-Fenstergröße (innen) = " + windowWidth + "x" + windowHeight);
 			});
 
