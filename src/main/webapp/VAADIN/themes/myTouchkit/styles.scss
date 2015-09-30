@@ -9,6 +9,10 @@
 		text-align: center;
 	}
 
+	.label-small {
+		font-size: 45%;
+	}
+	
 	.thumb-box {
 		background-color: #444444;
 		margin: 3px;
@@ -29,6 +33,11 @@
 	    text-align: center;
 	}
 	
+	.top-nav {
+		background-color: #444444;
+		color: #BBBBBB;
+	}
+	
 	.v-captiontext {
 		margin-bottom: 5px;
 		margin-top: -5px;
@@ -43,9 +52,11 @@
 		color: #BBBBBB;
 	}
 	
+
 	.v-touchkit-navbar-caption {
-		background-color: #444444;
 		color: #BBBBBB;
+		font-size: 90%;
+		width: 100%;
 	}
 	
 	.v-touchkit-navview-wrapper {
@@ -77,4 +88,20 @@
 		border-color: #000000;
 	}
 	
+	.v-touchkit-navbar-right {
+		background-color: #444444;
+		color: #BBBBBB;
+	}
+	
+	.v-touchkit-navbar-left {
+		background-color: #444444;
+		color: #BBBBBB;
+	}
+	
+	 .v-touchkit-navbar .v-touchkit-navbutton-back, 
+	 .v-touchkit-navbar .v-touchkit-navbutton-forward, 
+	 .v-touchkit-navbar .v-touchkit-navbutton {
+		overflow: visible;
+		width: 0px;
+	}	
 }

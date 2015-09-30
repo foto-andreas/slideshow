@@ -9,12 +9,47 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class SlideShow {
 
+	private final static Logger LOGGER = LogManager.getLogger(SlideshowFallbackUI.class);
+
 	private static final String THUMB_SUB_DIR_NAME = ".THUMB200";
+
+	public static void createThumbnail(final ExecutorService exer, final SlideShow show, final Path sampleImage) {
+		final SlideShow finalShow = show;
+		exer.submit(()
+			-> {
+				try {
+					final Path thumbNail = Paths.get(finalShow.getThumbnailPath().toString(), sampleImage.getFileName().toString());
+					if (!thumbNail.toFile().exists()) {
+						BufferedImage original = null;
+						if (sampleImage.toString().toLowerCase().endsWith(".mov")) {
+							// TODO make thumb from mov
+						} else {
+							original = ImageIO.read(sampleImage.toFile());
+						}
+						if (original != null) {
+							final BufferedImage scaled = Scalr.resize(original, 200);
+							original.flush();
+							ImageIO.write(scaled, "png", thumbNail.toFile());
+							scaled.flush();
+							LOGGER.debug("Mini-Ansicht generiert: " + thumbNail.toString());
+						} else {
+							LOGGER.error("Fehler beim Erzeugen eines Thumbnails für " + thumbNail.toString());
+						}
+					}
+				} catch (final Exception e) {
+					LOGGER.error("Fehler beim Erzeugen eines Thumbnails.", e);
+				}
+			});
+	}
 
 	private final String title;
 
