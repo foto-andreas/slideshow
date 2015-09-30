@@ -14,7 +14,58 @@
         <vaadin.version.maven>7.5.6</vaadin.version.maven>
         <touchkit.version>4.0.3</touchkit.version>
     </properties>
-    <repositories>
+
+	<profiles>
+	    <profile>
+	        <id>env-dev</id>
+	        <!-- Activated when -Denv=dev is given as parameter. -->
+	        <activation>
+	            <property>
+	                <name>env</name>
+	                <value>dev</value>
+	            </property>
+	        </activation>
+	        <properties>
+	            <deploy.env>deb</deploy.env>
+	            <tomcat.manager>http://localhost:8080/manager/text</tomcat.manager>
+				<tomcat.server>localhost</tomcat.server>
+				<tomcat.path>/slideshow</tomcat.path>
+	        </properties>
+	    </profile> 
+	    <profile>
+	        <id>env-int</id>
+	        <!-- Activated when -Denv=int is given as parameter. -->
+	        <activation>
+	            <property>
+	                <name>env</name>
+	                <value>int</value>
+	            </property>
+	        </activation>
+	        <properties>
+	            <deploy.env>deb</deploy.env>
+	            <tomcat.manager>http://schrell.de:8080/manager/text</tomcat.manager>
+				<tomcat.server>schrell.de</tomcat.server>
+				<tomcat.path>/slideshow-beta</tomcat.path>
+	        </properties>
+	    </profile> 
+	    <profile>
+	        <id>env-prod</id>
+	        <!-- Activated when -Denv=prod is given as parameter. -->
+	        <activation>
+	            <property>
+	                <name>env</name>
+	                <value>prod</value>
+	            </property>
+	        </activation>
+	        <properties>
+	            <deploy.env>dev</deploy.env>
+	            <tomcat.manager>http://schrell.de:8080/manager/text</tomcat.manager>
+				<tomcat.server>schrell.de</tomcat.server>
+				<tomcat.path>/slideshow</tomcat.path>
+	        </properties>
+	    </profile>
+	</profiles>  
+	<repositories>
         <repository>
             <id>vaadin-addons</id>
             <url>http://maven.vaadin.com/vaadin-addons</url>
@@ -109,19 +160,11 @@
 					<groupId>org.apache.tomcat.maven</groupId>
 					<artifactId>tomcat7-maven-plugin</artifactId>
 					<version>2.2</version>
-<!-- 
  					<configuration>
-						<url>http://schrell.de:8080/manager/text</url>
-						<server>schrell.de</server>
-						<path>/slideshow</path>
+						<url>${tomcat.manager}</url>
+						<server>${tomcat.server}</server>
+						<path>${tomcat.path}</path>
 					</configuration>
- -->
-					<configuration>
-						<url>http://localhost:8080/manager/text</url>
-						<server>localhost</server>
-						<path>/slideshow</path>
-					</configuration>
-					
 				</plugin>
 	            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -247,4 +290,5 @@
             </plugins>
         </pluginManagement>
     </build>
+
 </project>
