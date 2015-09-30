@@ -297,11 +297,11 @@ public class SlideshowTouchKitUI extends UI {
 		showsView.getNavigationBar().addStyleName("top-nav");
 
 		final VersionInfo versionInfo = new VersionInfo();
-		final Label versionLabel = new Label("Version " + versionInfo.getVersion());
+		final Label versionLabel = new Label("Slideshow Version " + versionInfo.getVersion());
 		versionLabel.addStyleName("label-small");
-		showsView.setRightComponent(versionLabel);
 		final Label copyrightLabel = new Label("© " + copyright);
 		copyrightLabel.addStyleName("label-small");
+		showsView.setRightComponent(versionLabel);
 		showsView.setLeftComponent(copyrightLabel);
 
 		final NavigationView showView = new NavigationView("Album", showContent);
