@@ -10,10 +10,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -244,7 +243,7 @@ public class SlideshowTouchKitUI extends UI {
 		final String folder = properties.getProperty("showdir");
 		final String copyright = properties.getProperty("copyright");
 
-		final Collection<SlideShow> slideshows = new ConcurrentLinkedQueue<>();
+		final TreeMap<String, SlideShow> slideshows = new TreeMap<>();
 
 		LOGGER.debug("Lese das Basisverzeichnis " + folder);
 
@@ -307,7 +306,7 @@ public class SlideshowTouchKitUI extends UI {
 		final NavigationView showView = new NavigationView("Album", showContent);
 		showView.getNavigationBar().addStyleName("top-nav");
 
-		slideshows.forEach(show
+		slideshows.values().forEach(show
 			-> {
 				final FireImage sample = layoutImage(showsContent, show.getTitle(), show.getSampleImage());
 				if (show.getTitle().equals(start)) {
@@ -427,7 +426,7 @@ public class SlideshowTouchKitUI extends UI {
 		}
 	}
 
-	private SlideShow registerSlideShow(final Collection<SlideShow> slideshows, final Path showDir,
+	private SlideShow registerSlideShow(final TreeMap<String, SlideShow> slideshows, final Path showDir,
 		final ExecutorService exer) {
 		SlideShow show = null;
 		try (DirectoryStream<Path> imagesStream = Files.newDirectoryStream(showDir)) {
@@ -446,7 +445,7 @@ public class SlideshowTouchKitUI extends UI {
 				}
 			}
 			if (show != null) {
-				slideshows.add(show);
+				slideshows.put(show.getTitle(), show);
 			}
 		} catch (final IOException e) {
 			popError(e);
