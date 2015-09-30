@@ -26,7 +26,7 @@
 	            </property>
 	        </activation>
 	        <properties>
-	            <deploy.env>deb</deploy.env>
+	            <deploy.env>dev</deploy.env>
 	            <tomcat.manager>http://localhost:8080/manager/text</tomcat.manager>
 				<tomcat.server>localhost</tomcat.server>
 				<tomcat.path>/slideshow</tomcat.path>
@@ -42,7 +42,7 @@
 	            </property>
 	        </activation>
 	        <properties>
-	            <deploy.env>deb</deploy.env>
+	            <deploy.env>int</deploy.env>
 	            <tomcat.manager>http://schrell.de:8080/manager/text</tomcat.manager>
 				<tomcat.server>schrell.de</tomcat.server>
 				<tomcat.path>/slideshow-beta</tomcat.path>
@@ -58,8 +58,24 @@
 	            </property>
 	        </activation>
 	        <properties>
-	            <deploy.env>dev</deploy.env>
+	            <deploy.env>prod</deploy.env>
 	            <tomcat.manager>http://schrell.de:8080/manager/text</tomcat.manager>
+				<tomcat.server>schrell.de</tomcat.server>
+				<tomcat.path>/slideshow</tomcat.path>
+	        </properties>
+	    </profile>
+	    <profile>
+	        <id>env-prod8</id>
+	        <!-- Activated when -Denv=prod is given as parameter. -->
+	        <activation>
+	            <property>
+	                <name>env</name>
+	                <value>prod8</value>
+	            </property>
+	        </activation>
+	        <properties>
+	            <deploy.env>prod8</deploy.env>
+	            <tomcat.manager>http://schrell.de:9090/manager/text</tomcat.manager>
 				<tomcat.server>schrell.de</tomcat.server>
 				<tomcat.path>/slideshow</tomcat.path>
 	        </properties>
