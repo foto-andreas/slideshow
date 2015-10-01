@@ -1,8 +1,11 @@
 package de.schrell.slides;
 
+import java.io.Serializable;
 import java.nio.file.Path;
 
-public class Slide {
+public class Slide implements Serializable {
+
+	private static final long serialVersionUID = -8405069548840976122L;
 
 	private final Path current;
 	private final SlideShow show;

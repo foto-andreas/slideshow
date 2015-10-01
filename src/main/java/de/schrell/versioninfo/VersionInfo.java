@@ -2,9 +2,12 @@ package de.schrell.versioninfo;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Properties;
 
-public class VersionInfo {
+public class VersionInfo implements Serializable {
+
+	private static final long serialVersionUID = 3147071937883636969L;
 
 	private static final String GROUP_ID = "groupId";
 	private static final String ARTIFACT_ID = "artifactId";

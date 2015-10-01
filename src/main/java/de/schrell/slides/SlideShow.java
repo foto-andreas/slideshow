@@ -2,6 +2,7 @@ package de.schrell.slides;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,7 +17,9 @@ import javax.imageio.ImageIO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class SlideShow {
+public class SlideShow implements Serializable {
+
+	private static final long serialVersionUID = 5385893771074569889L;
 
 	private final static Logger LOGGER = LogManager.getLogger(SlideshowFallbackUI.class);
 
